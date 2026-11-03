@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e2ecf7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #0077cc;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    main {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2, h3 {
+      color: #0077cc;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .ticket-list {
+      margin-top: 30px;
+      background: #f1f5fb;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    #confirmation {
+      display: none;
+      padding: 15px;
+      background: #d4edda;
+      border-left: 5px solid #28a745;
+      margin-top: 20px;
+      border-radius: 4px;
+      color: #155724;
+    }
+    #priceInfo {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background: #0077cc;
+      color: white;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Online Ticket Booking</h1>
+  </header>
+  <main>
+    <h2>Book Your Ticket</h2>
+    <form id="bookingForm">
+      <label for="fullname">Full Name:</label>
+      <input type="text" id="fullname" name="fullname" required>
+
+      <label for="mobile">Mobile Number:</label>
+      <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10}" title="Enter a 10-digit mobile number" required>
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="date">Date of Event:</label>
+      <input type="date" id="date" name="date" required>
+
+      <label for="tickets">Number of Tickets:</label>
+      <input type="number" id="tickets" name="tickets" min="1" max="10" required>
+
+      <label for="category">Ticket Category:</label>
+      <select id="category" name="category" required>
+        <option value="">-- Select Category --</option>
+        <option value="Regular">Regular</option>
+        <option value="VIP">VIP</option>
+        <option value="Student">Student</option>
+      </select>
+
+      <div id="priceInfo"></div>
+
+      <label for="about">About / Additional Details:</label>
+      <textarea id="about" name="about" rows="3" placeholder="Any requests or group/company name..."></textarea>
+
+      <button type="submit">Book Now</button>
+    </form>
+
+    <div id="confirmation"></div>
+
+    <h3>Booked Tickets Showcase</h3>
+    <div class="ticket-list" id="ticketList">
+      <p>No tickets booked yet.</p>
+    </div>
+
+    <h3>About Our Ticket System</h3>
+    <p>We provide an easy and fast online ticket booking system for various events. 
+       Choose your ticket type, add your details, and get booked instantly!</p>
+    <p><strong>Contact us:</strong> +254703837100</p>
+  </main>
+  <footer>
+    &copy; 2025 TicketBooking Ltd. All rights reserved.
+  </footer>
+
+  <script>
+    const bookingForm = document.getElementById('bookingForm');
+    const ticketList = document.getElementById('ticketList');
+    const confirmation = document.getElementById('confirmation');
+    const categoryInput = document.getElementById('category');
+    const ticketInput = document.getElementById('tickets');
+    const priceInfo = document.getElementById('priceInfo');
+
+    // Disable past dates
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("date").setAttribute('min', today);
+    });
+
+    // Price calculator
+    function updatePrice() {
+      const category = categoryInput.value;
+      const tickets = parseInt(ticketInput.value) || 0;
+
+      const prices = {
+        "Regular": 100,
+        "VIP": 250,
+        "Student": 50
+      };
+
+      if (prices[category]) {
+        const total = prices[category] * tickets;
+        priceInfo.textContent = `Total Price: KES ${total}`;
+      } else {
+        priceInfo.textContent = '';
+      }
+    }
+
+    categoryInput.addEventListener('change', updatePrice);
+    ticketInput.addEventListener('input', updatePrice);
+
+    bookingForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('fullname').value;
+      const mobile = document.getElementById('mobile').value;
+      const email = document.getElementById('email').value;
+      const date = document.getElementById('date').value;
+      const tickets = document.getElementById('tickets').value;
+      const category = document.getElementById('category').value;
+      const about = document.getElementById('about').value;
+
+      const ticketHTML = `
+        <div style="margin-bottom:10px; padding:10px; background:white; border-radius:4px;">
+          <strong>${name}</strong> booked <strong>${tickets}</strong> ticket(s) 
+          for <strong>${date}</strong> [${category}]<br>
+          Mobile: ${mobile}, Email: ${email}<br>
+          Details: ${about ? about : 'N/A'}
+        </div>   
+      `;
+
+      if(ticketList.querySelector('p')) {
+        ticketList.innerHTML = '';
+      }
+
+      ticketList.innerHTML += ticketHTML;
+
+      confirmation.innerText = `Thank you, ${name}! Your ticket for ${date} has been booked.`;
+      confirmation.style.display = 'block';
+
+      bookingForm.reset();
+      priceInfo.textContent = '';
+
+      setTimeout(() => {
+        confirmation.style.display = 'none';
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
